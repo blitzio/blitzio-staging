@@ -63,11 +63,12 @@ body:has([data-mode="webgl"]) .motion-control { display: flex; }
   main { flex: none; padding: 56px 0 40px; }
   .portrait { width: 192px; margin-top: 24px; }
   figcaption { margin-top: 47px; }
-  .socials { margin-top: 23px; max-width: 350px; gap: 3px 23px; }
-  .socials a { font-size: 13px; }
+  .socials { display: grid; grid-template-columns: repeat(3, max-content); margin-top: 23px; max-width: 350px; gap: 3px 23px; }
+  .socials a { font-size: 13px; justify-content: center; }
   footer { min-height: 0; padding: 0; }
 }
 @media (max-width: 360px) {
+  .socials { column-gap: 16px; }
   .page { width: calc(100% - 36px); }
   .portrait { width: 170px; }
 }
