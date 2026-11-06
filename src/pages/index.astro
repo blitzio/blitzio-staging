@@ -1,0 +1,51 @@
+---
+import '../styles/home.css';
+const base = import.meta.env.BASE_URL;
+const links = [
+  ['LinkedIn', 'https://www.linkedin.com/in/mikeferrer'],
+  ['Telegram', 'https://t.me/blitzio'],
+  ['Medium', 'https://medium.com/@blitzio'],
+  ['X (Personal)', 'https://twitter.com/blitzio'],
+  ['X (Work)', 'https://x.com/0xmikef'],
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Mike F’s personal home on the internet." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#101115" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="license" href={`${base}image-sources.txt`} />
+    <link rel="license" href={`${base}third-party-licenses.txt`} />
+    <link rel="license" href={`${base}fonts/DM-Sans-OFL.txt`} />
+    <meta name="image-source" content="NASA Earth Observatory, Blue Marble: Next Generation, July 2004. Colour-graded rendering by blitzio; no NASA endorsement." />
+    <title>blitzio. · Mike F</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="cosmic-environment" style={`--cosmic-fallback: url('${base}images/horizon.webp')`} aria-hidden="true" data-cosmic-environment data-mode="static"></div>
+    <div class="page">
+      <header>
+        <a href={base} class="wordmark" aria-label="blitzio homepage">blitzio<span>.</span></a>
+      </header>
+      <main id="main" tabindex="-1" aria-label="Mike F">
+        <div class="identity">
+          <figure class="portrait">
+            <img src={`${base}images/astronaut.webp`} width="512" height="512" alt="Mike F’s original astronaut avatar, illuminated in blue and violet" fetchpriority="high" />
+            <figcaption><h1>Mike F</h1></figcaption>
+          </figure>
+          <nav class="socials" aria-label="Social profiles">
+            {links.map(([label, href]) => <a href={href}>{label}<span aria-hidden="true">↗</span></a>)}
+          </nav>
+        </div>
+      </main>
+      <footer>
+        <label class="motion-control"><input id="pause-motion" type="checkbox" />Pause atmosphere</label>
+      </footer>
+    </div>
+    <script>import '../scripts/planet-loader';</script>
+  </body>
+</html>

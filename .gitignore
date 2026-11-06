@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+id_rsa
+id_ed25519
+.local/

@@ -1,0 +1,36 @@
+blitzio, imagery source and processing
+
+Surface imagery: NASA Earth Observatory, Blue Marble: Next Generation,
+July 2004, base map with topographic shading.
+Blue Marble imagery by Reto Stockli and Robert Simmon, NASA/GSFC.
+
+Collection:
+https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/
+
+Original image:
+https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-topography/july/world.topo.200407.3x21600x10800.jpg
+
+NASA media usage guidelines:
+https://www.nasa.gov/nasa-brand-center/images-and-media/
+
+This personal webpage uses NASA-published geographic imagery.
+NASA permits personal webpage use under its media guidelines, with source
+acknowledgement. NASA logos and endorsement are not used or implied.
+No separately identified third-party copyright notice was found on the
+selected NASA image source. This is not a blanket license for all NASA media.
+
+Processing by blitzio: spherical reprojection into a 3072px cap texture,
+WebP encoding, and dark blue/indigo colour treatment in a Three.js shader.
+The visible region is oriented toward maritime Southeast Asia. The approximate
+Singapore region is near the centre of the visible cap at a neutral pointer.
+There is no marker, label, or location pin in the rendered page.
+The source geography has not been procedurally regenerated.
+
+The rendered atmosphere, illumination, and perspective are artistic
+approximations. The surface mosaic is historical, not live observation.
+No synthetic cloud layer or current-weather claim is included.
+The separate Blue Marble cloud archive was investigated but could not be
+downloaded from its legacy NASA endpoint during this local session.
+
+Originals are retained outside the served site in .local/nasa-originals/.
+Only optimised local textures and a rendered static fallback are served.

@@ -1,0 +1,86 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('/fonts/dm-sans-latin-variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  font-family: 'DM Sans', Arial, sans-serif;
+  color: #f1f0ed;
+  background: #101115;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --muted: #aaa9b1;
+  --accent: #b6adf1;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 280px; min-height: 100svh; position: relative; isolation: isolate; }
+a { color: inherit; text-decoration: none; transition: color 160ms; }
+a:hover { color: var(--accent); }
+a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 2px; }
+figure, h1 { margin: 0; }
+::selection { background: #675988; color: white; }
+.skip-link { position: absolute; top: -100px; left: 24px; padding: 14px; background: #f1f0ed; color: #111113; z-index: 5; }
+.skip-link:focus { top: 18px; }
+.page { width: min(100% - 112px, 1264px); min-height: 100svh; margin-inline: auto; display: flex; flex-direction: column; }
+header { padding-block: 34px; }
+.wordmark { display: inline-flex; align-items: center; min-height: 44px; font-size: 30px; font-weight: 600; letter-spacing: -1.7px; }
+.wordmark span { color: var(--accent); }
+main { flex: 1; display: grid; align-items: center; padding: 70px 0 100px; }
+.identity { display: flex; flex-direction: column; align-items: center; }
+.portrait { width: 240px; }
+.portrait img { display: block; width: 100%; height: auto; border-radius: 50%; border: 1px solid #ffffff17; }
+figcaption { text-align: center; margin-top: 59px; }
+h1 { font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: .015em; color: #c5c1d0; }
+.socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 25px; margin-top: 26px; }
+.socials a { font-size: 12px; min-height: 44px; display: inline-flex; align-items: center; gap: 7px; }
+.socials a span { color: #aaa4bb; }
+footer { display: flex; justify-content: flex-end; align-items: center; min-height: 84px; padding-block: 20px; font-size: 11px; color: var(--muted); }
+.motion-control { display: none; align-items: center; gap: 9px; min-height: 44px; cursor: pointer; }
+.motion-control input { accent-color: var(--accent); width: 14px; height: 14px; margin: 0; }
+body:has([data-mode="webgl"]) .motion-control { display: flex; }
+.cosmic-environment { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #101115 var(--cosmic-fallback) center bottom / cover no-repeat; }
+.cosmic-environment canvas { display: block; width: 100%; height: 100%; }
+.cosmic-environment::after { content: ''; position: absolute; inset: 0; background: linear-gradient(#101115 0%, #101115 48%, #10111500 76%); }
+@media (min-width: 1001px) {
+  .portrait { width: 270px; }
+  h1 { font-size: 15px; }
+  .socials a { font-size: 14px; min-width: 44px; }
+}
+@media (max-width: 1000px) {
+  .page { width: calc(100% - 72px); }
+}
+@media (max-width: 680px) {
+  .page { width: calc(100% - 44px); }
+  header { padding-block: 20px 8px; }
+  .wordmark { font-size: 27px; }
+  main { flex: none; padding: 56px 0 40px; }
+  .portrait { width: 192px; margin-top: 24px; }
+  figcaption { margin-top: 47px; }
+  .socials { margin-top: 23px; max-width: 350px; gap: 3px 23px; }
+  .socials a { font-size: 13px; }
+  footer { min-height: 0; padding: 0; }
+}
+@media (max-width: 360px) {
+  .page { width: calc(100% - 36px); }
+  .portrait { width: 170px; }
+}
+@media (max-width: 680px) and (max-height: 700px) {
+  main { padding-top: 32px; }
+}
+@media (max-width: 680px) and (max-height: 600px) {
+  main { padding-top: 24px; }
+  .portrait { width: 160px; margin-top: 20px; }
+  figcaption { margin-top: 36px; }
+  .socials { margin-top: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  body:has([data-mode="webgl"]) .motion-control { display: none; }
+}
