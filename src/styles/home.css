@@ -45,7 +45,11 @@ footer { display: flex; justify-content: flex-end; align-items: center; min-heig
 .motion-control { display: none; align-items: center; gap: 9px; min-height: 44px; cursor: pointer; }
 .motion-control input { accent-color: var(--accent); width: 14px; height: 14px; margin: 0; }
 body:has([data-mode="webgl"]) .motion-control { display: flex; }
-.cosmic-environment { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #101115 var(--cosmic-fallback) center bottom / cover no-repeat; }
+/* The stills are sized by height and centred, which is exactly how the 3D
+   camera frames the scene (a fixed vertical field of view), so the still and
+   the live canvas line up on every screen shape. Space beyond the still's
+   sides is the same charcoal as the canvas. */
+.cosmic-environment { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #101115 var(--cosmic-fallback) center bottom / auto 100% no-repeat; }
 .cosmic-environment canvas { display: block; width: 100%; height: 100%; }
 .cosmic-environment::after { content: ''; position: absolute; inset: 0; background: linear-gradient(#101115 0%, #101115 48%, #10111500 76%); }
 @media (min-width: 1001px) {
@@ -84,6 +88,8 @@ body:has([data-mode="webgl"]) .motion-control { display: flex; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   body:has([data-mode="webgl"]) .motion-control { display: none; }
+  /* No arrival, so the night still is never shown or downloaded. */
+  .cosmic-environment::before { display: none; }
 }
 
 /* Release fixed vertical space progressively before reducing artwork size. */
@@ -101,3 +107,37 @@ body:has([data-mode="webgl"]) .motion-control { display: flex; }
 @media (min-width: 1001px) {
   .cosmic-environment { position: fixed; }
 }
+
+/* Arrival sunrise, the same on every device and with no script. The page
+   opens on the night side with its city lights, then dawn sweeps across to
+   the resting pose: a still of the night is wiped away, left to right, over
+   the resting still. It runs once and ends within 4 seconds. On desktop the
+   live canvas then crossfades over the matching still and the pointer takes
+   over, or takes over sooner if the pointer moves first. Reduced motion
+   already switches all of this off above, leaving the resting still. */
+@keyframes horizon-rise { from { opacity: .05; } }
+.cosmic-environment { animation: horizon-rise 1.1s cubic-bezier(.22, .61, .36, 1) both; }
+/* The night layer is exactly the size and place of the still, so the mask is
+   measured against the still itself and moves the same on every screen. The
+   mask is three times the still's width with its soft edge in the middle, so
+   at position p the edge sits at 150% - 200% * p of the still's width. The
+   sweep starts at the Earth's left edge (8%) and ends past the right edge
+   (108%); right of the resting line both stills show the same night, so the
+   visible dawn stops there. Tall screens only show the middle of the still,
+   so the sweep starts at 30% there. */
+@keyframes horizon-sweep { from { -webkit-mask-position: 71% 0; mask-position: 71% 0; } }
+@keyframes horizon-sweep-tall { from { -webkit-mask-position: 60% 0; mask-position: 60% 0; } }
+@supports ((-webkit-mask-image: linear-gradient(#000, #000)) or (mask-image: linear-gradient(#000, #000))) {
+  .cosmic-environment::before {
+    content: ''; position: absolute; bottom: 0; left: 50%; height: 100%; aspect-ratio: 2400 / 1599; transform: translateX(-50%);
+    background: var(--cosmic-night) center / 100% 100% no-repeat;
+    -webkit-mask: linear-gradient(90deg, transparent 45.5%, #000 54.5%) 21% 0 / 300% 100% no-repeat;
+    mask: linear-gradient(90deg, transparent 45.5%, #000 54.5%) 21% 0 / 300% 100% no-repeat;
+    animation: horizon-sweep 3s cubic-bezier(.4, 0, .25, 1) .6s both;
+  }
+  @media (max-aspect-ratio: 1/1) {
+    .cosmic-environment::before { animation-name: horizon-sweep-tall; }
+  }
+}
+.cosmic-environment canvas { position: absolute; inset: 0; opacity: 0; transition: opacity 450ms ease-out; }
+.cosmic-environment[data-mode="webgl"] canvas { opacity: 1; }

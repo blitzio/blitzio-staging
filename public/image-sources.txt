@@ -32,5 +32,22 @@ No synthetic cloud layer or current-weather claim is included.
 The separate Blue Marble cloud archive was investigated but could not be
 downloaded from its legacy NASA endpoint during this local session.
 
+Night lights: NASA Earth Observatory,
+Black Marble 2016, grayscale 3 km global map.
+Black Marble imagery by Joshua Stevens, NASA Earth Observatory, using Suomi
+NPP VIIRS data from Miguel Roman, NASA/GSFC.
+
+Collection:
+https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps
+
+Original image:
+https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/144000/144897/BlackMarble_2016_3km_gray.jpg
+
+Processing by blitzio: the same spherical reprojection as the surface imagery
+into a 3072px cap texture, WebP encoding, and shown only on the night side of
+the rendered day/night line, in a cool lavender white chosen for the site. The lights are a
+2016 composite, not a live observation.
+
 Originals are retained outside the served site in .local/nasa-originals/.
-Only optimised local textures and a rendered static fallback are served.
+Only optimised local textures and two rendered stills (the resting pose and
+the night pose the arrival starts from) are served.

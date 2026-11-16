@@ -14,5 +14,7 @@ export default defineConfig({
   base: base || '/',
   output: 'static',
   trailingSlash: 'always',
+  // Keep the page a single request for its styles.
+  build: { inlineStylesheets: 'always' },
   devToolbar: { enabled: false },
 });

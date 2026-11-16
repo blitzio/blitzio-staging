@@ -6,6 +6,11 @@ if (host) {
   let cleanup: (() => void) | undefined;
   let request: AbortController | undefined;
   let suspended = false;
+  // Remember the mouse from the first moment, so the scene can pick it up
+  // even if it moved before the scene finished loading.
+  let mouse: { x: number; y: number } | undefined;
+  document.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') mouse = { x: event.clientX, y: event.clientY }; }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { mouse = undefined; });
   async function update() {
     request?.abort();
     const active = new AbortController();
@@ -20,7 +25,7 @@ if (host) {
     try {
       const { createCosmicScene } = await import('./planet-scene');
       if (active.signal.aborted) return;
-      const dispose = await createCosmicScene(host!, active.signal);
+      const dispose = await createCosmicScene(host!, active.signal, () => mouse);
       if (active.signal.aborted) dispose();
       else cleanup = dispose;
     } catch {

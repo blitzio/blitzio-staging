@@ -1,6 +1,8 @@
 ---
 import '../styles/home.css';
 const base = import.meta.env.BASE_URL;
+const site = Astro.site ? new URL(base, Astro.site).href : undefined;
+const description = 'Mike F’s personal home on the internet.';
 const links = [
   ['LinkedIn', 'https://www.linkedin.com/in/mikeferrer'],
   ['Telegram', 'https://t.me/blitzio'],
@@ -15,19 +17,32 @@ const links = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Mike F’s personal home on the internet." />
+    <meta name="description" content={description} />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#101115" />
+    <link rel="icon" href={`${base}favicon.ico`} sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <link rel="preload" href={`${base}fonts/dm-sans-latin-variable.woff2`} as="font" type="font/woff2" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="blitzio." />
+    <meta property="og:title" content="blitzio. · Mike F" />
+    <meta property="og:description" content={description} />
+    {site && <meta property="og:url" content={site} />}
+    {site && <meta property="og:image" content={`${site}images/share-card.jpg`} />}
+    {site && <meta property="og:image:width" content="1200" />}
+    {site && <meta property="og:image:height" content="630" />}
+    {site && <meta property="og:image:alt" content="The blitzio. wordmark and astronaut avatar above a dark Earth horizon" />}
+    <meta name="twitter:card" content={site ? 'summary_large_image' : 'summary'} />
     <link rel="license" href={`${base}image-sources.txt`} />
     <link rel="license" href={`${base}third-party-licenses.txt`} />
     <link rel="license" href={`${base}fonts/DM-Sans-OFL.txt`} />
-    <meta name="image-source" content="NASA Earth Observatory, Blue Marble: Next Generation, July 2004. Colour-graded rendering by blitzio; no NASA endorsement." />
+    <meta name="image-source" content="NASA Earth Observatory, Blue Marble: Next Generation, July 2004, and Black Marble 2016 night lights. Colour-graded rendering by blitzio; no NASA endorsement." />
     <title>blitzio. · Mike F</title>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <div class="cosmic-environment" style={`--cosmic-fallback: url('${base}images/horizon.webp')`} aria-hidden="true" data-cosmic-environment data-mode="static"></div>
+    <div class="cosmic-environment" style={`--cosmic-fallback: url('${base}images/horizon.webp'); --cosmic-night: url('${base}images/horizon-night.webp')`} aria-hidden="true" data-cosmic-environment data-mode="static"></div>
     <div class="page">
       <header>
         <a href={base} class="wordmark" aria-label="blitzio homepage">blitzio<span>.</span></a>
