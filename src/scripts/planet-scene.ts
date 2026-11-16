@@ -300,9 +300,10 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   function reveal(early: boolean) {
     if (live || disposed) return;
     const reached = early ? wipeColumn() : undefined;
-    // Freeze the arrival where it is, so the still underneath does not keep
-    // sweeping while the live canvas fades in over it.
-    if (early) host.getAnimations({ subtree: true }).forEach(animation => animation.pause());
+    // Freeze the sweep where it is, so the still underneath does not keep
+    // sweeping while the live canvas fades in over it. Only the sweep: the
+    // background's opacity fade must still finish, or it would stay dim.
+    if (early) host.getAnimations({ subtree: true }).forEach(animation => { if ((animation as CSSAnimation).animationName?.startsWith('horizon-sweep')) animation.pause(); });
     if (reached !== undefined) {
       place(probe, 0, 0);
       sunUnder(reached, 1, fixedSun);
