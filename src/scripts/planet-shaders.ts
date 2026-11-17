@@ -6,7 +6,8 @@ varying vec3 vWorld; varying vec3 vNormal;
 uniform sampler2D atlas; uniform sampler2D night; uniform vec3 sun; uniform vec3 center; uniform vec3 lamp; uniform float edge; uniform float finish;
 void main(){
  vec3 p=normalize(vWorld-center);
- vec2 uv=p.xz*.5+.5;
+ // The images are uploaded top row first (as decoded bitmaps), so v runs down.
+ vec2 uv=vec2(p.x*.5+.5,.5-p.z*.5);
  vec3 image=texture2D(atlas,uv).rgb;
  float luminance=dot(image,vec3(.2126,.7152,.0722));
  float ocean=max(1.-smoothstep(.003,.015,luminance),smoothstep(.005,.035,image.b-max(image.r,image.g)));

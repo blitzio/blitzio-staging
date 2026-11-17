@@ -79,27 +79,40 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   }
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, .1, 160);
-  const loader = new THREE.TextureLoader();
   let textures: THREE.Texture[] = [];
+  // The Earth images are decoded in the background as bitmaps. Decoding them
+  // on the page's own thread, as plain images, froze the arrival sunrise
+  // for a third of a second. Bitmaps are uploaded as they are, top row
+  // first, so the shader reads them the other way up (see planet-shaders).
+  const decode = async (source: string) => {
+    const response = await fetch(import.meta.env.BASE_URL + source, { signal });
+    if (!response.ok) throw new Error(`Texture ${source} failed with ${response.status}.`);
+    return createImageBitmap(await response.blob(), { premultiplyAlpha: 'none' });
+  };
+  let bitmaps: ImageBitmap[] = [];
+  const closeBitmaps = () => bitmaps.forEach(bitmap => bitmap.close());
   signal.addEventListener('abort', releaseRenderer, { once: true });
   try {
-    const loaded = await Promise.allSettled(['images/earth-cap.webp', 'images/earth-night.webp'].map(source => loader.loadAsync(import.meta.env.BASE_URL + source)));
-    textures = loaded.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
+    const loaded = await Promise.allSettled(['images/earth-cap.webp', 'images/earth-night.webp'].map(decode));
+    bitmaps = loaded.flatMap(result => result.status === 'fulfilled' ? [result.value] : []);
     const failed = loaded.find(result => result.status === 'rejected');
     if (failed) throw (failed as PromiseRejectedResult).reason;
   } catch (error) {
-    textures.forEach(texture => texture.dispose());
+    closeBitmaps();
     releaseRenderer();
     throw error;
   } finally {
     signal.removeEventListener('abort', releaseRenderer);
   }
   if (signal.aborted) {
-    textures.forEach(texture => texture.dispose());
+    closeBitmaps();
     releaseRenderer();
     return () => {};
   }
+  textures = bitmaps.map(bitmap => new THREE.Texture(bitmap));
   for (const texture of textures) {
+    texture.flipY=false;
+    texture.needsUpdate=true;
     texture.colorSpace=THREE.SRGBColorSpace;
     texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
     texture.minFilter=THREE.LinearMipmapLinearFilter;
@@ -116,6 +129,33 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   const shell = new THREE.Mesh(airGeometry, atmosphere);
   shell.position.copy(center);
   scene.add(shell);
+  // Get the GPU ready a piece at a time while the arrival plays: one texture
+  // per frame, then the shaders, compiled without blocking where the browser
+  // allows. Done all at once on the first draw, this froze the sunrise.
+  const release = () => { geometry.dispose(); airGeometry.dispose(); surface.dispose(); atmosphere.dispose(); textures.forEach(texture => texture.dispose()); closeBitmaps(); releaseRenderer(); };
+  const nextFrame = () => new Promise<void>(resolve => {
+    const done = () => { signal.removeEventListener('abort', done); cancelAnimationFrame(id); resolve(); };
+    const id = requestAnimationFrame(done);
+    signal.addEventListener('abort', done, { once: true });
+  });
+  try {
+    for (const texture of textures) {
+      await nextFrame();
+      if (signal.aborted) break;
+      renderer.initTexture(texture);
+    }
+    if (!signal.aborted) {
+      place(camera, 0, 0);
+      await renderer.compileAsync(scene, camera);
+    }
+  } catch (error) {
+    release();
+    throw error;
+  }
+  if (signal.aborted) {
+    release();
+    return () => {};
+  }
 
   // The view shifts only slightly with the pointer, so the Earth stays put
   // and the light is what moves.
@@ -250,8 +290,10 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   function tick(time: number) {
     frame = 0;
     if (disposed || pause.checked || document.hidden) { lastTime = 0; return; }
-    // Skip extra frames on fast displays without dropping any at 60Hz.
-    if(lastTime&&time-lastTime<1000/75){frame=requestAnimationFrame(tick);return;}
+    // Draw on every display frame while anything moves, so on fast displays
+    // (120Hz and up) the line keeps pace with the cursor. Capping this at
+    // 60 a second made the light visibly trail the pointer. Drawing still
+    // stops entirely once the scene rests.
     const dt = (lastTime ? Math.min(time-lastTime,64) : 16) / 1000;
     lastTime = time;
     const steady = time >= viewFrom;
@@ -406,7 +448,7 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
     document.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',leave);
     window.removeEventListener('blur',leave);document.removeEventListener('visibilitychange',toggle);pause.removeEventListener('change',toggle);
     renderer.domElement.removeEventListener('webglcontextlost',lost);if(import.meta.env.DEV)host.removeEventListener('scene:pose',pose);
-    geometry.dispose();textures.forEach(texture => texture.dispose());airGeometry.dispose();surface.dispose();atmosphere.dispose();releaseRenderer();renderer.domElement.remove();
+    geometry.dispose();textures.forEach(texture => texture.dispose());closeBitmaps();airGeometry.dispose();surface.dispose();atmosphere.dispose();releaseRenderer();renderer.domElement.remove();
   }
   return dispose;
 }
