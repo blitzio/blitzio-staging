@@ -30,8 +30,23 @@ const edge = 0;
 // Screen positions are in the -1..1 range, x to the right and y up.
 // The Earth is widest on this row near the bottom of the view.
 const floorRow = -.86;
-// Keep a sliver of dawn at the left so the frame is never fully dark.
-const dawnSliver = .08;
+// Soft edges. Across the middle of the Earth the line sits exactly under the
+// pointer. Near either edge it slows smoothly instead of stopping dead, and
+// settles short of the edge, so the far left always keeps a band of dawn and
+// the far right a band of night with its city lights. Both are shares of the
+// Earth's half-width on screen, so the effect is the same on every screen
+// shape: edgeBand is how far inside the Earth's edge the line settles,
+// edgeKnee how far before that it starts to slow.
+const edgeBand = .24, edgeKnee = .19;
+// Follows x exactly between low + knee and high - knee, then eases towards
+// low or high without reaching them. Slope stays 1 at the joins, so the
+// motion never jerks.
+function softLimit(x: number, low: number, high: number, knee: number) {
+  if (high - low <= 2 * knee) return (low + high) / 2;
+  if (x < low + knee) return low + knee * Math.exp((x - low - knee) / knee);
+  if (x > high - knee) return high - knee * Math.exp((high - knee - x) / knee);
+  return x;
+}
 // Cool lavender white for the night lights, in linear RGB.
 const lamp: [number, number, number] = [.74, .74, 1.0];
 // Half-lives in seconds. While the pointer moves, the line is held to it:
@@ -212,9 +227,10 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   const aim: [number, number] = [0, floorRow];
   function aimPoint(x: number, y: number) {
     if (!hit(0, floorRow)) return false;
-    const left = (hit(-1, floorRow) ? -1 : boundary(-1, floorRow, 0, floorRow)[0]) + dawnSliver;
-    const right = (hit(1, floorRow) ? 1 : boundary(1, floorRow, 0, floorRow)[0]) - .004;
-    const column = clamp(x, left, right);
+    const leftEdge = hit(-1, floorRow) ? -1 : boundary(-1, floorRow, 0, floorRow)[0];
+    const rightEdge = hit(1, floorRow) ? 1 : boundary(1, floorRow, 0, floorRow)[0];
+    const half = (rightEdge - leftEdge) / 2;
+    const column = softLimit(x, leftEdge + edgeBand * half, rightEdge - edgeBand * half, edgeKnee * half);
     if (hit(column, y)) { aim[0] = column; aim[1] = y; return true; }
     const [, horizon] = boundary(column, Math.max(y, floorRow), column, floorRow);
     aim[0] = column; aim[1] = Math.max(floorRow, horizon - .01);
