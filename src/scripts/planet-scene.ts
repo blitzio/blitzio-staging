@@ -355,13 +355,16 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   }
   // The live canvas takes over from the arrival. If the pointer cut the
   // arrival short, the line starts where the wipe had reached.
+  // The arrival's dawn sweep animations, and those this scene froze.
+  const sweeps = () => host.getAnimations({ subtree: true }).filter(animation => (animation as CSSAnimation).animationName?.startsWith('horizon-sweep'));
+  const frozen: Animation[] = [];
   function reveal(early: boolean) {
     if (live || disposed) return;
     const reached = early ? wipeColumn() : undefined;
     // Freeze the sweep where it is, so the still underneath does not keep
     // sweeping while the live canvas fades in over it. Only the sweep: the
     // background's opacity fade must still finish, or it would stay dim.
-    if (early) host.getAnimations({ subtree: true }).forEach(animation => { if ((animation as CSSAnimation).animationName?.startsWith('horizon-sweep')) animation.pause(); });
+    if (early) sweeps().forEach(animation => { animation.pause(); frozen.push(animation); });
     if (reached !== undefined) {
       place(probe, 0, 0);
       sunUnder(reached, 1, fixedSun);
@@ -449,6 +452,10 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   // pointer that moves before then takes over at once.
   // Browsers do not all report animations on pseudo-elements, so the sweep's
   // own end event is also awaited, with a timeout in case it never comes.
+  // A sweep left frozen by an earlier scene (for example one shut down when
+  // the window became too narrow) can never finish, so finish it now rather
+  // than wait on it forever.
+  sweeps().forEach(animation => { if (animation.playState === 'paused') animation.finish(); });
   const running = host.getAnimations({ subtree: true });
   const reported = running.some(animation => (animation as CSSAnimation).animationName?.startsWith('horizon-sweep'));
   const masked = CSS.supports('mask-image', 'linear-gradient(#000, #000)') || CSS.supports('-webkit-mask-image', 'linear-gradient(#000, #000)');
@@ -460,6 +467,9 @@ export async function createCosmicScene(host: HTMLElement, signal: AbortSignal, 
   Promise.all([...running.map(animation => animation.finished.catch(() => undefined)), sweepEnded]).then(() => reveal(false));
   function dispose() {
     if (disposed) return;
+    // Let any sweep this scene froze finish, so the still left behind shows
+    // the resting pose rather than a half-swept dawn.
+    frozen.forEach(animation => { if (animation.playState === 'paused') animation.finish(); });
     disposed=true;cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',resize);window.removeEventListener('scroll',scroll);
     document.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',leave);
     window.removeEventListener('blur',leave);document.removeEventListener('visibilitychange',toggle);pause.removeEventListener('change',toggle);
