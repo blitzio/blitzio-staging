@@ -1,20 +1,25 @@
-# blitzio staging
+# blitzio. staging
 
-Approved personal homepage for Mike F. Static Astro output, local DM Sans, stationary astronaut and a progressively enhanced Three.js horizon. No runtime API or analytics service.
+Staging copy of [blitzio.com](https://blitzio.com), used to check changes before they go live. It is published at [blitzio.github.io/blitzio-staging](https://blitzio.github.io/blitzio-staging/) and asks search engines not to index it.
 
-Use Node 24 and pnpm 11.25.0. Run `pnpm install --frozen-lockfile`, `pnpm build`, and `pnpm preview`. Only `dist/` is a publication artifact.
+The page, build and credits are the same as the production repository, [blitzio/blitzio-site](https://github.com/blitzio/blitzio-site), apart from its own address and search settings.
 
-## GitHub Pages
+## Build
 
-No push trigger is configured. In Settings > Pages choose GitHub Actions. The manual Pages staging workflow derives the HTTPS origin and repository base path from its own repository name. A manual run with publish=false builds and stores an artifact without publishing a site. Only after explicit publication approval, run with publish=true. No custom domain is configured. No personal access token is needed.
+Requires Node 24 and pnpm 11.
 
-Staging retains noindex,nofollow. This is an indexing request, not access control: repository source and a published staging site are public.
+```sh
+pnpm install --frozen-lockfile
+pnpm build
+pnpm preview
+```
 
-## Rights and attribution
+The site is published to GitHub Pages by a manually triggered workflow, which takes its address from this repository's name.
 
-The full DM Sans SIL OFL and Three.js MIT notices are in public/. NASA image provenance and media usage terms are recorded in public/image-sources.txt. Retain these notices in builds. Avatar artwork was supplied for this site; its publication rights must be confirmed by the site owner. No project-wide license for the original site code or artwork is granted by this README.
+## Credits
 
-## Later custom domain
+- Earth imagery: NASA Earth Observatory, Blue Marble: Next Generation and Black Marble 2016. Details are in `public/image-sources.txt`. No NASA endorsement is implied.
+- Typeface: DM Sans, SIL Open Font License.
+- 3D rendering: Three.js, MIT License.
 
-After separate approval, set the Astro site to the final HTTPS origin and base to /. Remove staging noindex only when public indexing is intended. Replace the repository-derived workflow URL step with explicitly approved production values, configure the Pages custom domain and CNAME, and only then perform separately approved DNS changes. Rebuild and test all assets.
-For a later approved production-domain transition, also revise scripts/check-static-output.cjs: allow the approved CNAME, update the expected file count, and replace the staging noindex assertion with the intended production indexing check.
+Full notices are in `public/third-party-licenses.txt` and `public/fonts/DM-Sans-OFL.txt`. The site's own code and artwork are not licensed for reuse.
