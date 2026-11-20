@@ -17,6 +17,6 @@
     "three": "0.187.0"
   },
   "devDependencies": {
-    "astro": "7.4.5"
+    "astro": "7.4.12"
   }
 }
